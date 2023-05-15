@@ -51,6 +51,8 @@ const config = {
     '@typescript-eslint/no-unsafe-call': 'off',
     'import/prefer-default-export': 'off',
     'no-void': 'off',
+    'react/button-has-type': 'off',
+    'react/require-default-props': 'off',
   },
 };
 
