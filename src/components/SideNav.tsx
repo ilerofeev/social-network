@@ -17,13 +17,9 @@ export function SideNav() {
           </li>
         )}
         {user ? (
-          <button type="button" onClick={() => void signOut()}>
-            Log Out
-          </button>
+          <button onClick={() => void signOut()}>Log Out</button>
         ) : (
-          <button type="button" onClick={() => void signIn()}>
-            Log In
-          </button>
+          <button onClick={() => void signIn()}>Log In</button>
         )}
       </ul>
     </nav>
