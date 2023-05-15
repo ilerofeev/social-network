@@ -26,7 +26,12 @@ const config = {
     'prettier',
   ],
   rules: {
-    'prettier/prettier': ['error'],
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
     '@typescript-eslint/consistent-type-imports': [
       'warn',
       {
@@ -41,6 +46,11 @@ const config = {
     'react/jsx-filename-extension': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/jsx-props-no-spreading': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    'import/prefer-default-export': 'off',
+    'no-void': 'off',
   },
 };
 
