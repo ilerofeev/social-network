@@ -74,7 +74,36 @@ function HeartButton({ onClick, isLoading, likedByMe, likeCount }: HeartButtonPr
 }
 
 function PostCard({ id, user, content, createdAt, likedByMe, likeCount }: Post) {
-  const toggleLike = api.post.toggleLike.useMutation();
+  const trpcUtils = api.useContext();
+
+  const toggleLike = api.post.toggleLike.useMutation({
+    onSuccess: ({ addedLike }) => {
+      const updateData: Parameters<typeof trpcUtils.post.infiniteFeed.setInfiniteData>[1] = (
+        oldData
+      ) => {
+        if (!oldData) return;
+
+        const countModifier = addedLike ? 1 : -1;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            posts: page.posts.map((post) =>
+              post.id === id
+                ? {
+                    ...post,
+                    likeCount: post.likeCount + countModifier,
+                    likedByMe: addedLike,
+                  }
+                : post
+            ),
+          })),
+        };
+      };
+      trpcUtils.post.infiniteFeed.setInfiniteData({}, updateData);
+    },
+  });
 
   const handleToggleLike = () => {
     toggleLike.mutate({ id });
