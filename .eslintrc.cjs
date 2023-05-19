@@ -53,6 +53,7 @@ const config = {
     'no-unused-vars': 'warn',
     'import/no-unresolved': 'off',
     'no-underscore-dangle': 'off',
+    'react/prop-types': 'off',
     'import/no-extraneous-dependencies': 'off',
     'react/button-has-type': 'off',
     'import/extensions': [
