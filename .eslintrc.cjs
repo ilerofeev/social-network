@@ -54,6 +54,7 @@ const config = {
     'import/no-unresolved': 'off',
     'no-underscore-dangle': 'off',
     'react/prop-types': 'off',
+    'consistent-return': 'off',
     'import/no-extraneous-dependencies': 'off',
     'react/button-has-type': 'off',
     'import/extensions': [
