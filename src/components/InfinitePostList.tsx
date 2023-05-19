@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { VscHeart, VscHeartFilled } from 'react-icons/vsc';
 import { ProfileImage } from './ProfileImage';
 import { IconHoverEffect } from './IconHoverEffect';
+import { api } from '~/utils/api';
 
 type Post = {
   id: string;
@@ -29,11 +30,13 @@ type InfinitePostListProps = {
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'short' });
 
 type HeartButtonProps = {
+  onClick: () => void;
+  isLoading: boolean;
   likedByMe: boolean;
   likeCount: number;
 };
 
-function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
+function HeartButton({ onClick, isLoading, likedByMe, likeCount }: HeartButtonProps) {
   const session = useSession();
   const HeartIcon = likedByMe ? VscHeartFilled : VscHeart;
 
@@ -50,6 +53,8 @@ function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
 
   return (
     <button
+      onClick={onClick}
+      disabled={isLoading}
       className={`group -ml-2 flex items-center gap-1 self-start transition-colors duration-200 ${
         likedByMe ? 'text-red-500' : 'text-gray-500 hover:text-red-500 focus-visible:text-red-500'
       }`}
@@ -69,6 +74,12 @@ function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
 }
 
 function PostCard({ id, user, content, createdAt, likedByMe, likeCount }: Post) {
+  const toggleLike = api.post.toggleLike.useMutation();
+
+  const handleToggleLike = () => {
+    toggleLike.mutate({ id });
+  };
+
   return (
     <li className='flex gap-4 border-b px-4 py-4'>
       <Link href={`/profiles/${user.id}`}>
@@ -86,7 +97,12 @@ function PostCard({ id, user, content, createdAt, likedByMe, likeCount }: Post) 
           <span className='text-gray-500'>{dateTimeFormatter.format(createdAt)}</span>
         </div>
         <p className='whitespace-pre-wrap'>{content}</p>
-        <HeartButton likedByMe={likedByMe} likeCount={likeCount} />
+        <HeartButton
+          onClick={handleToggleLike}
+          isLoading={toggleLike.isLoading}
+          likedByMe={likedByMe}
+          likeCount={likeCount}
+        />
       </div>
     </li>
   );
