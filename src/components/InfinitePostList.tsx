@@ -153,15 +153,17 @@ export function InfinitePostList({
   }
 
   return (
-    <InfiniteScroll
-      dataLength={posts.length}
-      next={fetchNewPosts}
-      hasMore={hasMore}
-      loader='Loading...'
-    >
-      {posts.map((post) => (
-        <PostCard key={post.id} {...post} />
-      ))}
-    </InfiniteScroll>
+    <ul>
+      <InfiniteScroll
+        dataLength={posts.length}
+        next={fetchNewPosts}
+        hasMore={hasMore}
+        loader='Loading...'
+      >
+        {posts.map((post) => (
+          <PostCard key={post.id} {...post} />
+        ))}
+      </InfiniteScroll>
+    </ul>
   );
 }
