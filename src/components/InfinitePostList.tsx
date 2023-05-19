@@ -43,11 +43,9 @@ function HeartButton({ onClick, isLoading, likedByMe, likeCount }: HeartButtonPr
 
   if (session.status !== 'authenticated') {
     return (
-      <div className='my-1 flex items-center gap-3 self-start text-gray-500'>
-        <IconHoverEffect red>
-          <HeartIcon />
-          <span>{likeCount}</span>
-        </IconHoverEffect>
+      <div className='my-1 mt-1 flex items-center gap-3 self-start text-gray-500'>
+        <HeartIcon />
+        <span>{likeCount}</span>
       </div>
     );
   }
