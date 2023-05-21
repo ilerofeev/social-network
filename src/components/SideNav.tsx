@@ -11,7 +11,7 @@ export function SideNav() {
     <nav className='sticky top-0 px-2 py-4'>
       <ul className='flex flex-col items-start gap-2 whitespace-nowrap'>
         <li>
-          <Link href='/home'>
+          <Link href='/'>
             <IconHoverEffect>
               <span className='flex items-center gap-4'>
                 <VscHome className='h-8 w-8' />
