@@ -57,6 +57,23 @@ async function getInfinitePosts({
 }
 
 export const postRouter = createTRPCRouter({
+  infiniteProfileFeed: publicProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        limit: z.number().optional(),
+        cursor: z.object({ id: z.string(), createdAt: z.date() }).optional(),
+      })
+    )
+    .query(async ({ input: { limit = 10, userId, cursor }, ctx }) => {
+      const InfinitePosts = getInfinitePosts({
+        limit,
+        ctx,
+        cursor,
+        whereClause: { userId },
+      });
+      return InfinitePosts;
+    }),
   infiniteFeed: publicProcedure
     .input(
       z.object({
@@ -67,7 +84,7 @@ export const postRouter = createTRPCRouter({
     )
     .query(async ({ input: { limit = 10, onlyFollowing = false, cursor }, ctx }) => {
       const currentUserId = ctx.session?.user.id;
-      return getInfinitePosts({
+      const InfinitePosts = await getInfinitePosts({
         limit,
         ctx,
         cursor,
@@ -80,6 +97,7 @@ export const postRouter = createTRPCRouter({
                 },
               },
       });
+      return InfinitePosts;
     }),
   create: protectedProcedure
     .input(z.object({ content: z.string() }))
@@ -87,6 +105,9 @@ export const postRouter = createTRPCRouter({
       const post = await ctx.prisma.post.create({
         data: { content, userId: ctx.session.user.id },
       });
+
+      // revalidation. reupdate static followers block information (posts info)
+      void ctx.revalidateSSG?.(`/profiles/${ctx.session.user.id}`);
 
       return post;
     }),
