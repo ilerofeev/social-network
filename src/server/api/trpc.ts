@@ -32,6 +32,16 @@ import { getServerAuthSession } from '~/server/auth';
 
 type CreateContextOptions = {
   session: Session | null;
+  revalidateSSG:
+    | ((
+        urlPath: string,
+        opts?:
+          | {
+              unstable_onlyGenerated?: boolean | undefined;
+            }
+          | undefined
+      ) => Promise<void>)
+    | null;
 };
 
 /**
@@ -44,9 +54,10 @@ type CreateContextOptions = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (opts: CreateContextOptions) => ({
+export const createInnerTRPCContext = (opts: CreateContextOptions) => ({
   session: opts.session,
   prisma,
+  revalidateSSG: opts.revalidateSSG,
 });
 
 /**
@@ -63,6 +74,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   return createInnerTRPCContext({
     session,
+    revalidateSSG: res.revalidate,
   });
 };
 
@@ -73,8 +85,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };
   },
