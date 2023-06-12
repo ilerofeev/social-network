@@ -1,5 +1,7 @@
 import type { Prisma } from '@prisma/client';
-import type { inferAsyncReturnType } from '@trpc/server';
+import { TRPCError, type inferAsyncReturnType } from '@trpc/server';
+import { Ratelimit } from '@upstash/ratelimit'; // for deno: see above
+import { Redis } from '@upstash/redis';
 import { z } from 'zod';
 import type { createTRPCContext } from '~/server/api/trpc';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '~/server/api/trpc';
@@ -56,6 +58,13 @@ async function getInfinitePosts({
   };
 }
 
+// Create a new ratelimiter, that allows 5 requests per 1 minute
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, '1 m'),
+  analytics: true,
+});
+
 export const postRouter = createTRPCRouter({
   infiniteProfileFeed: publicProcedure
     .input(
@@ -102,6 +111,9 @@ export const postRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({ content: z.string() }))
     .mutation(async ({ input: { content }, ctx }) => {
+      const { success } = await ratelimit.limit(ctx.session.user.id);
+      if (!success) throw new TRPCError({ code: 'TOO_MANY_REQUESTS' });
+
       const post = await ctx.prisma.post.create({
         data: { content, userId: ctx.session.user.id },
       });
