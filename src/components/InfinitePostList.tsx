@@ -2,10 +2,15 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { VscHeart, VscHeartFilled } from 'react-icons/vsc';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import toast from 'react-hot-toast';
 import { ProfileImage } from './ProfileImage';
 import { IconHoverEffect } from './IconHoverEffect';
 import { api } from '~/utils/api';
 import { LoadingSpinner } from './LoadingSpinner';
+
+dayjs.extend(relativeTime);
 
 type Post = {
   id: string;
@@ -104,6 +109,14 @@ function PostCard({ id, user, content, createdAt, likedByMe, likeCount }: Post) 
       trpcUtils.post.infiniteFeed.setInfiniteData({ onlyFollowing: true }, updateData);
       trpcUtils.post.infiniteProfileFeed.setInfiniteData({ userId: user.id }, updateData);
     },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.message;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error('Failed to post! Please try again later');
+      }
+    },
   });
 
   const handleToggleLike = () => {
@@ -125,6 +138,7 @@ function PostCard({ id, user, content, createdAt, likedByMe, likeCount }: Post) 
           </Link>
           <span className='text-gray-500'>-</span>
           <span className='text-gray-500'>{dateTimeFormatter.format(createdAt)}</span>
+          <span className='text-gray-500'>({dayjs(createdAt).fromNow()})</span>
         </div>
         <p className='whitespace-pre-wrap'>{content}</p>
         <HeartButton
